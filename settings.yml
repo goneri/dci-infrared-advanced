@@ -1,15 +1,18 @@
-dci_topic: "OSP13"
+#dci_topic: "{{ ['OSP8', 'OSP9', 'OSP10', 'OSP11', 'OSP12', 'OSP13', 'OSP14']|random }}"
+dci_topic: 'OSP14'
 # The public IP address of the jumpbox that will be exposed to the
 # OpenStack cluster
-dci_base_ip: "{{ ansible_default_ipv4.address }}"
-# The location of the HTT mirror
+dci_base_ip: '192.168.1.40'
+#dci_base_ip: "{{ ansible_default_ipv4.address }}"
+# The location of the HTTP mirror
 dci_baseurl: "http://{{ dci_base_ip }}"
 # The IP address of the undercloud host. You cannot use hostname in this field.
 #undercloud_ip: "fooo"
 dci_mirror_location: "/var/www/html"
-dci_config_dir: "/etc/dci-ansible-agent"
-dci_cache_dir: "/var/lib/dci-ansible-agent"
-dci_teardown_on_failure: True
+dci_config_dir: "/etc/dci-openstack-agent"
+dci_cache_dir: "/var/lib/dci-openstack-agent"
+dci_teardown_on_failure: False
+run_openstack_ffu: True
 
 skip_certification: true
 
@@ -50,6 +53,9 @@ tempest_workers: 6
 #
 # Extra confituration for Tempest
 #
+
+test_regex: 'tempest\.api\.compute\.test_quotas'
+skip_file_src: /etc/dci-openstack-agent/skip_file
 
 tempest_extra_config:
   # Set this to the name of the public network you want to be created

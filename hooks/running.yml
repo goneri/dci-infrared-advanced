@@ -3,13 +3,30 @@
   shell: |
     cd ~/infrared
     source .venv/bin/activate
-    infrared virsh --host-address 192.168.122.1 --host-key $HOME/.ssh/id_rsa --topology-nodes undercloud:1,controller:1,compute:1
+    infrared virsh \
+      --host-address 192.168.122.1 \
+      --host-key $HOME/.ssh/id_rsa \
+      --topology-nodes undercloud:1,controller:1,compute:1
 
 - name: Install the undercloud
   shell: |
     cd ~/infrared
     source .venv/bin/activate
-    infrared tripleo-undercloud --version 13 --images-task rpm --cdn /etc/dci-ansible-agent/cdn_creds.yml --repos-skip-release True --repos-url http://192.168.1.40/dci_repo/dci_repo.repo
+    infrared tripleo-undercloud \
+      --version {{ job_info.job.topic.name.replace("OSP", "")}} \
+      --images-task rpm \
+      --cdn /etc/dci-openstack-agent/cdn_creds.yml \
+      --repos-skip-release True \
+      --registry-skip-puddle True \
+      --registry-mirror 192.168.1.40:5000 \
+      --registry-namespace rhosp14 \
+      --registry-tag latest \
+      --repos-url http://192.168.1.40/dci_repo/dci_repo.repo \
+      --registry-undercloud-skip yes \
+      --registry-ceph-namespace 192.168.1.40:5000/rhosp14 \
+      --registry-ceph-image rhceph \
+      --registry-ceph-tag latest \
+      --ntp-server 0.rhel.pool.ntp.org
 
 - name: Fix the mode of the ansible.ssh.config, this way we will be able to include
   file:
@@ -23,4 +40,18 @@
   shell: |
     cd ~/infrared
     source .venv/bin/activate
-    infrared tripleo-overcloud --deployment-files virt --version 13 --introspect yes --tagging yes --deploy yes --post yes --containers yes --registry-skip-puddle yes --registry-undercloud-skip yes --registry-mirror 192.168.1.40:5000 --registry-tag latest --registry-namespace rhosp13 --registry-prefix openstack- --vbmc-host undercloud --ntp-server 0.rhel.pool.ntp.org
+    infrared tripleo-overcloud \
+      --deployment-files virt \
+      --version {{ job_info.job.topic.name.replace("OSP", "")}} \
+      --introspect yes \
+      --tagging yes \
+      --deploy yes \
+      --containers yes \
+      --registry-skip-puddle yes \
+      --registry-undercloud-skip yes \
+      --registry-mirror 192.168.1.40:5000 \
+      --registry-tag latest \
+      --registry-namespace {{ job_info.job.topic.name.replace("OSP", "rhosp")}} \
+      --registry-prefix openstack- \
+      --vbmc-force yes \
+      --ntp-server 0.rhel.pool.ntp.org
